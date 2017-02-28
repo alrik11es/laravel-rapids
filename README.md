@@ -1,7 +1,6 @@
-#Laravel Rapids
-The rapid development made with laravel.
-
 ![alt tag](https://raw.githubusercontent.com/alrik11es/laravel-rapids/master/resources/images/laravel_rapids.png)
+
+The rapid development made with laravel.
 
 This library is intended for those developers who like to make applications as fast as possible.
 
