@@ -40,18 +40,18 @@ Remember that to load any widget you're gonna need to execute `$widget_render = 
 ### DataGrid
 The DataGrid is the bridge head of the computer development. You're gonna need it for everything. So lets take a look to the options that Rapids brings.
 
-**Startup**\
+#####Startup
 `$data_grid = new DataGrid(Post::query());` Start your DataGrid within an Eloquent model query
 
-**Adding new field to the table**\
+#####Adding new field to the table
 `$data_grid->add('title', 'Title');` When you need to add a new field.
 
 If you need that this field shows orderBy buttons. Set to true the third optional parameter.
 
-**Actions (Edit/Show/Delete)**\
+#####Actions (Edit/Show/Delete)
 `$data_grid->setActions('/post/edit', 'modify|delete');` This will add the action buttons in your DataGrid. Available options are "modify", "delete", "show"
 
-**Value transformations**\
+#####Value transformations
 Imagine the common case to have a price value over 50 to be painted as yellow.
 ```php
 $grid_widget->addTransformation('price', function($value){
@@ -64,7 +64,7 @@ $grid_widget->addTransformation('price', function($value){
 ```
 You can obviously make your own widget instead of adding raw html to the PHP code. Just pass any rendered string as result of the callback.
 
-**Row transformations**\
+#####Row transformations
 Sometimes you need to set some classes to the entire row. Use this type of transformation to do so.
 
 #### setActions
