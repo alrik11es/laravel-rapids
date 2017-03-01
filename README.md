@@ -4,6 +4,11 @@ The rapid development made with laravel.
 
 This library is intended for those developers who like to make applications as fast as possible.
 
+## Requirements
+
+* PHP >= 7.0.0
+* Bootstrap on your project
+
 ## Installation
 
 Add Rapids service provider `Laravel\Rapids\RapidsServiceProvider::class,` to your app.php config in Laravel.
