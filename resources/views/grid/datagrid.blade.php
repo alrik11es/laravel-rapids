@@ -5,17 +5,22 @@
 <div class="table-responsive">
     <table class="table">
         <tr>
-            @foreach($fields as $cell)
+            @foreach($fields as $field)
                 <th>
 
-                    @if($cell->needs_order)
-{{--                    @if(isset($field) && $field == 'done' && $order == 'asc')--}}
-                        <i class="glyphicon glyphicon-chevron-up"></i>
-{{--                    @elseif(isset($field) && $field == 'done' && $order == 'desc')--}}
-                        <i class="glyphicon glyphicon-chevron-down"></i>
+                    @if($field->needs_order)
+                        <span class="ordering">
+                            @if(Request::input($field->field_id) != 'asc')
+                            <a href="?{{$field->field_id}}=asc"><i class="glyphicon glyphicon-chevron-up"></i></a>
+                            <i class="glyphicon glyphicon-chevron-down"></i>
+                            @else
+                            <i class="glyphicon glyphicon-chevron-up"></i>
+                            <a href="?{{$field->field_id}}=desc"><i class="glyphicon glyphicon-chevron-down"></i></a>
+                            @endif
+                        </span>
                     @endif
 
-                    {{ $cell->name }}
+                    {{ $field->name }}
                 </th>
             @endforeach
             @if($actions)

@@ -1,6 +1,7 @@
 <?php
 namespace Laravel\Rapids\Widgets;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request;
 use Laravel\Rapids\Facades\Widget;
@@ -12,6 +13,7 @@ class DataGrid extends WidgetAbstract
         'actions' => null,
         'link' => null
     ];
+    /** @var Builder */
     private $query;
     private $pagination_limit;
     /** @var Collection */
@@ -57,15 +59,16 @@ class DataGrid extends WidgetAbstract
      * Gets the selected fields and returns for ordering operations
      * @param Request $request
      */
-    private function runOrders()
+    private function runOrderBys()
     {
-        $this->query;
-//        $field = Request::input('field');
-//        $order = Request::input('order');
-
         foreach($this->fields as $field) {
             if($field->needs_order){
-//                $field = Request::input('field')
+                $req =  Request::input($field->field_id);
+                if($req == 'asc'){
+                    $this->query = $this->query->orderBy($field->field_id, 'asc');
+                } else {
+                    $this->query = $this->query->orderBy($field->field_id, 'desc');
+                }
             }
 //            $this->data[$field.'_url'] = $request->input('order') == 'asc'
 //                ? $request->fullUrlWithQuery(['order' => 'desc', 'field' => $field])
@@ -102,7 +105,7 @@ class DataGrid extends WidgetAbstract
     public function render()
     {
         $this->data['fields'] = $this->fields;
-//        $this->runOrders();
+        $this->runOrderBys();
         $this->data['paginator'] = $this->runValueTransformations();
         $output = \View::make('rapids::grid.datagrid', $this->data)->render();
         return $output;
