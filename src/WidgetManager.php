@@ -1,13 +1,13 @@
 <?php
 namespace Laravel\Rapids;
 
-use Laravel\Rapids\Widgets\WidgetInterface;
+use Laravel\Rapids\Widgets\WidgetAbstract;
 
 class WidgetManager
 {
     private $widget;
 
-    public function load(WidgetInterface $widget)
+    public function load(WidgetAbstract $widget)
     {
         $this->widget = $widget;
         return $this;

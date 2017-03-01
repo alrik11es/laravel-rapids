@@ -1,8 +1,22 @@
+@if($link)
+    {!! $link !!}
+@endif
+<div class="clearfix"></div>
 <div class="table-responsive">
     <table class="table">
         <tr>
             @foreach($fields as $cell)
-                <th>{{ $cell->name }}</th>
+                <th>
+
+                    @if($cell->needs_order)
+{{--                    @if(isset($field) && $field == 'done' && $order == 'asc')--}}
+                        <i class="glyphicon glyphicon-chevron-up"></i>
+{{--                    @elseif(isset($field) && $field == 'done' && $order == 'desc')--}}
+                        <i class="glyphicon glyphicon-chevron-down"></i>
+                    @endif
+
+                    {{ $cell->name }}
+                </th>
             @endforeach
             @if($actions)
                 <th>@lang('rapids::rapids.actions')</th>

@@ -9,9 +9,8 @@ class RapidsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'rapids');
-
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'rapids');
         $this->loadConfig();
-
     }
 
     public function loadConfig()
