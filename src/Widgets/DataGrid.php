@@ -57,15 +57,20 @@ class DataGrid extends WidgetAbstract
      * Gets the selected fields and returns for ordering operations
      * @param Request $request
      */
-    private function returnOrderByInputValue()
+    private function runOrders()
     {
-        $field = Request::input('field');
-        $order = Request::input('order');
-//        foreach($this->fields as $field) {
+        $this->query;
+//        $field = Request::input('field');
+//        $order = Request::input('order');
+
+        foreach($this->fields as $field) {
+            if($field->needs_order){
+//                $field = Request::input('field')
+            }
 //            $this->data[$field.'_url'] = $request->input('order') == 'asc'
 //                ? $request->fullUrlWithQuery(['order' => 'desc', 'field' => $field])
 //                : $request->fullUrlWithQuery(['order' => 'asc', 'field' => $field]);
-//        }
+        }
     }
 
     public function addTransformation($field_id, callable $callback)
@@ -97,6 +102,7 @@ class DataGrid extends WidgetAbstract
     public function render()
     {
         $this->data['fields'] = $this->fields;
+//        $this->runOrders();
         $this->data['paginator'] = $this->runValueTransformations();
         $output = \View::make('rapids::grid.datagrid', $this->data)->render();
         return $output;
