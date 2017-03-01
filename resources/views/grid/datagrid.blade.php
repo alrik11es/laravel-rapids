@@ -30,7 +30,7 @@
                     {{--</td>--}}
                 {{--@endif--}}
                 @foreach($fields as $cell)
-                    <td>{{ $row[$cell->field_id]}}</td>
+                    <td>{!! $row[$cell->field_id] !!}</td>
                 @endforeach
 
 
