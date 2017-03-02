@@ -1,4 +1,4 @@
-@if (in_array($field->type, array('hidden','auto')) OR !$field->has_wrapper )
+@if (in_array($field->type, array('hidden','auto')) )
 
     {!! $field->output !!}
 
@@ -12,7 +12,7 @@
 @else
     <div class="form-group clearfix{!!$field->has_error!!}" id="fg_{!! $field->name !!}" >
 
-        @if ($field->has_label)
+        @if ($field->label)
             <label for="{!! $field->name !!}" class="col-sm-2 control-label{!! $field->req !!}">{!! $field->label.$field->star !!}</label>
             <div class="col-sm-10" id="div_{!! $field->name !!}">
         @else

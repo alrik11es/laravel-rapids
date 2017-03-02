@@ -29,7 +29,7 @@
                 <th>@lang('rapids::rapids.actions')</th>
             @endif
         </tr>
-        @foreach($paginator as $row)
+        @forelse($paginator as $row)
             <tr>
                 {{--@if($hasBatch && $__batch_id = $row->getKey())--}}
                     {{--<td>--}}
@@ -61,7 +61,13 @@
                     </td>
                 @endif
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="{{ count($fields) + ($actions ? 1 : 0) }}">
+                    No hay resultados
+                </td>
+            </tr>
+        @endforelse
     </table>
 </div>
 

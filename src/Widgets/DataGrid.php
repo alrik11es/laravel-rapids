@@ -16,6 +16,8 @@ class DataGrid extends WidgetAbstract
         'ord' => null
     ];
 
+    /** @var Builder */
+    private $query;
     private $pagination_limit;
     /** @var Collection */
     private $fields;
@@ -23,9 +25,18 @@ class DataGrid extends WidgetAbstract
 
     public function __construct($query_or_filter)
     {
-        parent::__construct($query_or_filter);
-        $this->filter = $query_or_filter;
+        $this->query = $query_or_filter;
+        if($query_or_filter instanceof DataFilter){
+            $this->query = $query_or_filter->getQuery();
+            $this->filter = $query_or_filter;
+        }
+
         $this->fields = collect([]);
+    }
+
+    public function getQuery()
+    {
+        return $this->query;
     }
 
     public function add($field_id, $name, $needs_order = false)
@@ -111,7 +122,9 @@ class DataGrid extends WidgetAbstract
         $this->data['fields'] = $this->fields;
         $this->runOrderBys();
         $this->data['paginator'] = $this->runValueTransformations();
-        $this->data['filter'] = (new WidgetManager())->load($this->filter);
+        if($this->filter) {
+            $this->data['filter'] = (new WidgetManager())->load($this->filter);
+        }
         $output = \View::make('rapids::grid.datagrid', $this->data)->render();
         return $output;
     }

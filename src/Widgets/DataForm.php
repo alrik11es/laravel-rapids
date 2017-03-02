@@ -9,31 +9,24 @@ use Laravel\Rapids\Field;
 use Laravel\Rapids\FormBuilder;
 use Laravel\Rapids\WidgetManager;
 
-class DataFilter extends WidgetAbstract
+class DataForm extends WidgetAbstract
 {
+    const FORM_CREATE = 1;
+    const FORM_UPDATE = 2;
+
     private $data = [
         'actions' => null,
         'link' => null
     ];
 
-    /** @var Builder */
-    private $query;
     /** @var Collection */
     private $fields;
+    private $post;
 
-    public function __construct($query_or_filter)
+    public function __construct($model, $resource_route, $form_method = self::FORM_CREATE)
     {
-        $this->query = $query_or_filter;
-        if($query_or_filter instanceof DataGrid){
-            $this->query = $query_or_filter->getQuery();
-        }
-
+        $this->model = $model;
         $this->fields = collect([]);
-    }
-
-    public function getQuery()
-    {
-        return $this->query;
     }
 
     public function add($field_id, $name, $type = Field::TYPE_TEXT)
@@ -45,7 +38,8 @@ class DataFilter extends WidgetAbstract
         $field->has_error = '';
         $field->label =  $name;
         $field->star = '';
-        $field->messages = '';
+        $field->messages =  [];
+        $field->req = true;
         $this->fields->push($field);
         $this->runFilter($field);
         return $this;
@@ -65,10 +59,10 @@ class DataFilter extends WidgetAbstract
 
         $form = new FormBuilder();
         $form->setFields($this->fields);
-        $output_form = $form->build('get', true);
+        $output_form = $form->build('post');
 
         $this->data['df'] = $output_form;
-        $output = \View::make('rapids::dataform_inline', $this->data)->render();
+        $output = \View::make('rapids::dataform', $this->data)->render();
         return $output;
     }
 
