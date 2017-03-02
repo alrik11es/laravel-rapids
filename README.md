@@ -37,6 +37,7 @@ This will generate a simple datagrid with modify/delete options.
 ## Load any widget
 Remember that to load any widget you're gonna need to execute `$widget_render = Widget::load($widget);`and will return the render of that widget. You only need to pass to blade as raw format `{!! $widget !!}`.
 ## Elements
+In order to ease the usability of this tool we've created some widgets for you. Just to use on any place.
 ### DataGrid
 The DataGrid is the bridge head of the computer development. You're gonna need it for everything. So lets take a look to the options that Rapids brings.
 
@@ -54,7 +55,7 @@ If you need that this field shows orderBy buttons. Set to true the third optiona
 #####Value transformations
 Imagine the common case to have a price value over 50 to be painted as yellow.
 ```php
-$grid_widget->addTransformation('price', function($value){
+$grid_widget->addTransformation('price', 'Pricing', function($value){
     $result = $value;
     if($value > 50){
         $result = '<span style="background-color: yellow;">'.$value.'</span>';
@@ -66,6 +67,15 @@ You can obviously make your own widget instead of adding raw html to the PHP cod
 
 #####Row transformations
 Sometimes you need to set some classes to the entire row. Use this type of transformation to do so.
+
+#####Relations
+Obviously you will need to add some relations to the table. The best way to achieve this is using a transformation. So for example:
+
+```php
+$grid_widget->addTransformation('categories', 'Categories', function($value){
+    return $value->implode('name', ', ');
+});
+```
 
 #### setActions
 ### DataForm

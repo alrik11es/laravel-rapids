@@ -8,6 +8,8 @@ class RapidsServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        $this->app->register('Collective\Html\HtmlServiceProvider');
+
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'rapids');
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'rapids');
         $this->loadConfig();

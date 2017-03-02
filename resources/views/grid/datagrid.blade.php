@@ -1,3 +1,5 @@
+{!! $filter !!}
+
 @if($link)
     {!! $link !!}
 @endif
@@ -10,12 +12,12 @@
 
                     @if($field->needs_order)
                         <span class="ordering">
-                            @if(Request::input($field->field_id) != 'asc')
-                            <a href="?{{$field->field_id}}=asc"><i class="glyphicon glyphicon-chevron-up"></i></a>
+                            @if(Request::input('ord_'.$field->field_id) != 'asc')
+                            <a href="{{ $ord['ord_asc_'.$field->field_id] }}"><i class="glyphicon glyphicon-chevron-up"></i></a>
                             <i class="glyphicon glyphicon-chevron-down"></i>
                             @else
                             <i class="glyphicon glyphicon-chevron-up"></i>
-                            <a href="?{{$field->field_id}}=desc"><i class="glyphicon glyphicon-chevron-down"></i></a>
+                            <a href="{{ $ord['ord_desc_'.$field->field_id] }}"><i class="glyphicon glyphicon-chevron-down"></i></a>
                             @endif
                         </span>
                     @endif

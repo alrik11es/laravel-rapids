@@ -11,17 +11,20 @@ class DataGrid extends WidgetAbstract
 {
     private $data = [
         'actions' => null,
-        'link' => null
+        'link' => null,
+        'filter' => null,
+        'ord' => null
     ];
-    /** @var Builder */
-    private $query;
+
     private $pagination_limit;
     /** @var Collection */
     private $fields;
+    private $filter;
 
-    public function __construct($query)
+    public function __construct($query_or_filter)
     {
-        $this->query = $query;
+        parent::__construct($query_or_filter);
+        $this->filter = $query_or_filter;
         $this->fields = collect([]);
     }
 
@@ -56,28 +59,29 @@ class DataGrid extends WidgetAbstract
     }
 
     /**
-     * Gets the selected fields and returns for ordering operations
-     * @param Request $request
+     * Gets the selected fields and fix for ordering operations
      */
     private function runOrderBys()
     {
         foreach($this->fields as $field) {
             if($field->needs_order){
-                $req =  Request::input($field->field_id);
-                if($req == 'asc'){
-                    $this->query = $this->query->orderBy($field->field_id, 'asc');
-                } else {
-                    $this->query = $this->query->orderBy($field->field_id, 'desc');
+                $req =  Request::input('ord_'.$field->field_id);
+                $this->data['ord']['ord_asc_'.$field->field_id] = Request::fullUrlWithQuery(['ord_'.$field->field_id => 'asc']);
+                $this->data['ord']['ord_desc_'.$field->field_id] = Request::fullUrlWithQuery(['ord_'.$field->field_id => 'desc']);
+                if(!empty($req)) {
+                    if ($req == 'asc') {
+                        $this->query = $this->query->orderBy($field->field_id, 'asc');
+                    } else {
+                        $this->query = $this->query->orderBy($field->field_id, 'desc');
+                    }
                 }
             }
-//            $this->data[$field.'_url'] = $request->input('order') == 'asc'
-//                ? $request->fullUrlWithQuery(['order' => 'desc', 'field' => $field])
-//                : $request->fullUrlWithQuery(['order' => 'asc', 'field' => $field]);
         }
     }
 
-    public function addTransformation($field_id, callable $callback)
+    public function addTransformation($field_id, $name, callable $callback)
     {
+        $this->add($field_id, $name);
         $collection = $this->fields->where('field_id', $field_id);
 
         foreach($collection as $key => $item){
@@ -107,6 +111,7 @@ class DataGrid extends WidgetAbstract
         $this->data['fields'] = $this->fields;
         $this->runOrderBys();
         $this->data['paginator'] = $this->runValueTransformations();
+        $this->data['filter'] = (new WidgetManager())->load($this->filter);
         $output = \View::make('rapids::grid.datagrid', $this->data)->render();
         return $output;
     }
