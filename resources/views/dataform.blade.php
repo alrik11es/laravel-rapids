@@ -21,4 +21,5 @@
         @section('df.footer')
                 {!! $df->close !!}
         @show
+
 </div>

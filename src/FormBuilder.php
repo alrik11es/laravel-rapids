@@ -5,6 +5,15 @@ class FormBuilder
 {
     private $fields;
     private $action_url;
+    private $method;
+
+    /**
+     * @param mixed $method
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
+    }
 
     public function __construct()
     {
@@ -24,7 +33,7 @@ class FormBuilder
     /**
      * @return \stdClass
      */
-    public function build($method = 'get', $inline = false): \stdClass
+    public function build($inline = false): \stdClass
     {
         /** @var \Collective\Html\FormBuilder $form */
         $form = resolve('form');
@@ -33,7 +42,7 @@ class FormBuilder
 
         $options = [
             'url' => $this->action_url,
-            'method' => $method,
+            'method' => $this->method,
             'class' => ($inline) ? 'form-inline' : ''
         ];
         $output_form->open = $form->open($options);
@@ -42,14 +51,10 @@ class FormBuilder
         foreach ($this->fields as $field) {
 
             $field_options = ['class' => 'form-control', 'placeholder' => $field->name];
+            $field_options = array_merge($field_options, $field->options);
 
-            if($field->type == Field::TYPE_TEXT) {
-                $field->output = $form->text($field->field_id, \Request::input($field->field_id), $field_options);
-            }
-
-            if($field->type == Field::TYPE_DATE){
-                $field->output = $form->date($field->field_id, \Request::input($field->field_id), $field_options);
-            }
+            $type = $field->type;
+            $field->output = $form->$type($field->field_id, $field->value, $field_options);
 
             $output_form->fields[] = $field;
 

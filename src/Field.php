@@ -3,7 +3,8 @@ namespace Laravel\Rapids;
 
 class Field
 {
-    const TYPE_TEXT = 1;
-    const TYPE_NUMERIC = 2;
-    const TYPE_DATE = 3;
+    const TYPE_TEXT = 'text';
+    const TYPE_NUMERIC = 'number';
+    const TYPE_DATE = 'date';
+    const TYPE_MONTH = 'selectMonth';
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Laravel\Rapids\Widgets;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request;
@@ -8,6 +9,7 @@ use Laravel\Rapids\Facades\Widget;
 use Laravel\Rapids\Field;
 use Laravel\Rapids\FormBuilder;
 use Laravel\Rapids\WidgetManager;
+use Illuminate\Database\Eloquent\Model;
 
 class DataForm extends WidgetAbstract
 {
@@ -22,35 +24,68 @@ class DataForm extends WidgetAbstract
     /** @var Collection */
     private $fields;
     private $post;
+    /** @var Model */
+    private $model;
+    private $route;
+    private $request;
+    private $form_method;
 
-    public function __construct($model, $resource_route, $form_method = self::FORM_CREATE)
+    public function __construct($model, $resource_route = null)
     {
+        $this->route = $resource_route;
         $this->model = $model;
         $this->fields = collect([]);
     }
 
-    public function add($field_id, $name, $type = Field::TYPE_TEXT)
+    public function setRequest($request)
+    {
+        $this->request = $request;
+    }
+
+    public function add($field_id, $name = null, $type = Field::TYPE_TEXT, $options = [])
     {
         $field = new \stdClass();
         $field->name = $name;
         $field->field_id = $field_id;
         $field->type = $type;
         $field->has_error = '';
+        if(isset($this->model->$field_id)) {
+            $field->value = $this->model->$field_id;
+        } else {
+            $field->value = '';
+        }
         $field->label =  $name;
         $field->star = '';
         $field->messages =  [];
+        $field->options = $options;
         $field->req = true;
         $this->fields->push($field);
-        $this->runFilter($field);
         return $this;
     }
 
-    private function runFilter($field)
+    public function request($field_id, $type = Field::TYPE_TEXT, $options = [])
     {
-        $field_query = Request::input($field->field_id);
-        if (!empty($field_query) && $field->type == Field::TYPE_TEXT) {
-            $this->query = $this->query->where($field->field_id, 'LIKE', '%'.$field_query.'%');
+        $field = new \stdClass();
+        $field->field_id = $field_id;
+        $field->type = $type;
+        $field->has_error = '';
+
+        if(isset($options['format'])){
+            $field->format = $options['format'];
         }
+
+        $field->messages =  [];
+        $field->req = true;
+        $this->fields->push($field);
+        return $this;
+    }
+
+    public function requestTransformation($field_id, callable $callback)
+    {
+        $field = new \stdClass();
+        $field->field_id = $field_id;
+        $field->transformation = $callback;
+        return $this;
     }
 
     public function render()
@@ -58,12 +93,46 @@ class DataForm extends WidgetAbstract
         $this->data['fields'] = $this->fields;
 
         $form = new FormBuilder();
+
+        if(isset($this->model->id)){
+            $form->setActionUrl($this->route.'/'.$this->model->id);
+            $form->setMethod('patch');
+        } else {
+            $form->setActionUrl($this->route);
+            $form->setMethod('post');
+        }
+
         $form->setFields($this->fields);
-        $output_form = $form->build('post');
+        $output_form = $form->build();
 
         $this->data['df'] = $output_form;
         $output = \View::make('rapids::dataform', $this->data)->render();
         return $output;
     }
 
+    public function operate()
+    {
+        foreach($this->fields as $field) {
+            $field_id = $field->field_id;
+            if(isset($field->callback) && is_callable($field->callback)){
+                $field_value = ($field->transformation)($this->model, Request::input($field_id));
+            } else {
+                if ($field->type == Field::TYPE_DATE) {
+                    $field_value = Carbon::createFromFormat($field->format, Request::input($field_id));
+                } else {
+                    $field_value = Request::input($field_id);
+                }
+            }
+            $this->model->$field_id = $field_value;
+        }
+        $this->model->save();
+
+        return redirect($this->route);
+    }
+
+    public function destroyer(callable $callback = null)
+    {
+        $this->model->delete();
+        return redirect($this->route);
+    }
 }

@@ -44,19 +44,21 @@
                 @if($actions)
                     <td>
                         @if (in_array("show", $actions))
-                            <a class="" title="@lang('rapids::rapids.show')" href="{!! $url !!}?show={!! $row['id'] !!}">
+                            <a class="" title="@lang('rapids::rapids.show')" href="{!! $url !!}/{!! $row['id'] !!}">
                                 <span class="glyphicon glyphicon-eye-open"> </span>
                             </a>
                         @endif
                         @if (in_array("modify", $actions))
-                            <a class="" title="@lang('rapids::rapids.modify')" href="{!! $url !!}?modify={!! $row['id'] !!}">
+                            <a class="" title="@lang('rapids::rapids.modify')" href="{!! $url !!}/{!! $row['id'] !!}/edit">
                                 <span class="glyphicon glyphicon-edit"> </span>
                             </a>
                         @endif
                         @if (in_array("delete", $actions))
-                            <a class="text-danger" title="@lang('rapids::rapids.delete')" href="{!! $url !!}?delete={!! $row['id'] !!}">
+                            {{ resolve('form')->open(['url' => $url.'/'.$row['id'], 'method' => 'delete']) }}
+                            <button type="submit" class="text-danger" title="@lang('rapids::rapids.delete')">
                                 <span class="glyphicon glyphicon-trash"> </span>
-                            </a>
+                            </button>
+                            {{ resolve('form')->close() }}
                         @endif
                     </td>
                 @endif
