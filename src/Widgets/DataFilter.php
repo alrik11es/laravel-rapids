@@ -4,6 +4,7 @@ namespace Laravel\Rapids\Widgets;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request;
+use Laravel\Rapids\Cell;
 use Laravel\Rapids\Facades\Widget;
 use Laravel\Rapids\Field;
 use Laravel\Rapids\FormBuilder;
@@ -36,9 +37,9 @@ class DataFilter extends WidgetAbstract
         return $this->query;
     }
 
-    public function add($field_id, $name, $type = Field::TYPE_TEXT)
+    public function add($field_id, $name, $type = Cell::TYPE_TEXT)
     {
-        $field = new \stdClass();
+        $field = new Cell();
         $field->name = $name;
         $field->field_id = $field_id;
         $field->type = $type;
@@ -46,15 +47,16 @@ class DataFilter extends WidgetAbstract
         $field->label =  $name;
         $field->star = '';
         $field->messages = '';
+
         $this->fields->push($field);
         $this->runFilter($field);
-        return $this;
+        return $field;
     }
 
     private function runFilter($field)
     {
         $field_query = Request::input($field->field_id);
-        if (!empty($field_query) && $field->type == Field::TYPE_TEXT) {
+        if (!empty($field_query) && $field->type == Cell::TYPE_TEXT) {
             $this->query = $this->query->where($field->field_id, 'LIKE', '%'.$field_query.'%');
         }
     }

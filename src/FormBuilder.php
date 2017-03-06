@@ -51,9 +51,16 @@ class FormBuilder
         foreach ($this->fields as $field) {
 
             $field_options = ['class' => 'form-control', 'placeholder' => $field->name];
-            $field_options = array_merge($field_options, $field->options);
+            if(isset($field->options)) {
+                $field_options = array_merge($field_options, $field->options);
+            }
+
+            if(!isset($field->value)){
+                $field->value = '';
+            }
 
             $type = $field->type;
+
             $field->output = $form->$type($field->field_id, $field->value, $field_options);
 
             $output_form->fields[] = $field;

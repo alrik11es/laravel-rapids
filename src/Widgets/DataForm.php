@@ -5,8 +5,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request;
+use Laravel\Rapids\Cell;
 use Laravel\Rapids\Facades\Widget;
-use Laravel\Rapids\Field;
 use Laravel\Rapids\FormBuilder;
 use Laravel\Rapids\WidgetManager;
 use Illuminate\Database\Eloquent\Model;
@@ -42,9 +42,9 @@ class DataForm extends WidgetAbstract
         $this->request = $request;
     }
 
-    public function add($field_id, $name = null, $type = Field::TYPE_TEXT, $options = [])
+    public function add($field_id, $name = null, $type = Cell::TYPE_TEXT, $options = [])
     {
-        $field = new \stdClass();
+        $field = new Cell();
         $field->name = $name;
         $field->field_id = $field_id;
         $field->type = $type;
@@ -60,12 +60,12 @@ class DataForm extends WidgetAbstract
         $field->options = $options;
         $field->req = true;
         $this->fields->push($field);
-        return $this;
+        return $field;
     }
 
-    public function request($field_id, $type = Field::TYPE_TEXT, $options = [])
+    public function request($field_id, $type = Cell::TYPE_TEXT, $options = [])
     {
-        $field = new \stdClass();
+        $field = new Cell();
         $field->field_id = $field_id;
         $field->type = $type;
         $field->has_error = '';
@@ -77,15 +77,7 @@ class DataForm extends WidgetAbstract
         $field->messages =  [];
         $field->req = true;
         $this->fields->push($field);
-        return $this;
-    }
-
-    public function requestTransformation($field_id, callable $callback)
-    {
-        $field = new \stdClass();
-        $field->field_id = $field_id;
-        $field->transformation = $callback;
-        return $this;
+        return $field;
     }
 
     public function render()

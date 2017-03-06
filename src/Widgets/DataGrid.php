@@ -4,7 +4,9 @@ namespace Laravel\Rapids\Widgets;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request;
+use Laravel\Rapids\Cell;
 use Laravel\Rapids\Facades\Widget;
+use Laravel\Rapids\Field;
 use Laravel\Rapids\WidgetManager;
 
 class DataGrid extends WidgetAbstract
@@ -41,12 +43,12 @@ class DataGrid extends WidgetAbstract
 
     public function add($field_id, $name, $needs_order = false)
     {
-        $field = new \stdClass();
+        $field = new Cell();
         $field->name = $name;
         $field->field_id = $field_id;
         $field->needs_order = $needs_order;
         $this->fields->push($field);
-        return $this;
+        return $field;
     }
 
     public function setPaginationLimit($limit = 50)
@@ -88,18 +90,6 @@ class DataGrid extends WidgetAbstract
                 }
             }
         }
-    }
-
-    public function addTransformation($field_id, $name, callable $callback)
-    {
-        $this->add($field_id, $name);
-        $collection = $this->fields->where('field_id', $field_id);
-
-        foreach($collection as $key => $item){
-            $item->transformation = $callback;
-            $this->fields->offsetSet($key, $item);
-        }
-        return $this;
     }
 
     private function runValueTransformations()
