@@ -66,7 +66,7 @@ class DataFilter extends WidgetAbstract
         $this->data['fields'] = $this->fields;
 
         $form = new FormBuilder();
-        $form->setFields($this->fields);
+        $form->setCells($this->fields);
         $output_form = $form->build('get', true);
 
         $this->data['df'] = $output_form;

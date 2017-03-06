@@ -94,7 +94,7 @@ class DataForm extends WidgetAbstract
             $form->setMethod('post');
         }
 
-        $form->setFields($this->fields);
+        $form->setCells($this->fields);
         $output_form = $form->build();
 
         $this->data['df'] = $output_form;
