@@ -41,7 +41,7 @@ class CheckBoxGroup implements FieldInterface
         }
         $this->cell->model->$relation()->detach();
         foreach($result as $item){
-            $this->cell->model->$relation()->attach($item, $this->cell->pivot($this->cell));
+            $this->cell->model->$relation()->attach($item, ($this->cell->pivot)($this->cell));
         }
     }
 

@@ -32,6 +32,6 @@ class Cell
 
     public function pivotData(callable $callback)
     {
-        $this->transformation = $callback;
+        $this->pivot = $callback;
     }
 }
