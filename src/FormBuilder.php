@@ -11,7 +11,7 @@ class FormBuilder
     private $method;
 
     private $forms = [
-        Cell::TYPE_CHECKBOXGROUP => CheckBoxGroup::class
+        Cell::TYPE_CHECKBOXGROUP
     ];
 
     /**
@@ -68,10 +68,9 @@ class FormBuilder
 
             $type = $cell->type;
 
-            if(in_array($type, $this->forms)){
+            if(class_exists($type)){
                 /** @var FieldInterface $field */
-                $type_field = $this->cells[$type];
-                $field = new $type_field();
+                $field = new $type();
                 $field->setCell($cell);
                 $field->info = $field;
                 $cell->output = $field->render();
