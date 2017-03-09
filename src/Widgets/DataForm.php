@@ -5,8 +5,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request;
+use Laravel\Rapids\Cell;
 use Laravel\Rapids\Facades\Widget;
-use Laravel\Rapids\Field;
+use Laravel\Rapids\Fields\FieldInterface;
 use Laravel\Rapids\FormBuilder;
 use Laravel\Rapids\WidgetManager;
 use Illuminate\Database\Eloquent\Model;
@@ -22,19 +23,18 @@ class DataForm extends WidgetAbstract
     ];
 
     /** @var Collection */
-    private $fields;
-    private $post;
+    private $cells;
+
     /** @var Model */
     private $model;
     private $route;
     private $request;
-    private $form_method;
 
     public function __construct($model, $resource_route = null)
     {
         $this->route = $resource_route;
         $this->model = $model;
-        $this->fields = collect([]);
+        $this->cells = collect([]);
     }
 
     public function setRequest($request)
@@ -42,55 +42,44 @@ class DataForm extends WidgetAbstract
         $this->request = $request;
     }
 
-    public function add($field_id, $name = null, $type = Field::TYPE_TEXT, $options = [])
+    public function add($cell_id, $name = null, $type = Cell::TYPE_TEXT, $options = [])
     {
-        $field = new \stdClass();
-        $field->name = $name;
-        $field->field_id = $field_id;
-        $field->type = $type;
-        $field->has_error = '';
-        if(isset($this->model->$field_id)) {
-            $field->value = $this->model->$field_id;
-        } else {
-            $field->value = '';
-        }
-        $field->label =  $name;
-        $field->star = '';
-        $field->messages =  [];
-        $field->options = $options;
-        $field->req = true;
-        $this->fields->push($field);
-        return $this;
+        $cell = new Cell();
+        $cell->name = $name;
+        $cell->field_id = $cell_id;
+        $cell->type = $type;
+        $cell->has_error = '';
+        $cell->value = $this->model->$cell_id;
+        $cell->model = $this->model;
+        $cell->label =  $name;
+        $cell->star = '';
+        $cell->messages =  [];
+        $cell->options = $options;
+        $cell->req = true;
+        $this->cells->push($cell);
+        return $cell;
     }
 
-    public function request($field_id, $type = Field::TYPE_TEXT, $options = [])
+    public function request($cell_id, $type = Cell::TYPE_TEXT, $options = [])
     {
-        $field = new \stdClass();
-        $field->field_id = $field_id;
-        $field->type = $type;
-        $field->has_error = '';
+        $cell = new Cell();
+        $cell->field_id = $cell_id;
+        $cell->type = $type;
+        $cell->has_error = '';
 
         if(isset($options['format'])){
-            $field->format = $options['format'];
+            $cell->format = $options['format'];
         }
-
-        $field->messages =  [];
-        $field->req = true;
-        $this->fields->push($field);
-        return $this;
-    }
-
-    public function requestTransformation($field_id, callable $callback)
-    {
-        $field = new \stdClass();
-        $field->field_id = $field_id;
-        $field->transformation = $callback;
-        return $this;
+        $cell->model = $this->model;
+        $cell->messages =  [];
+        $cell->req = true;
+        $this->cells->push($cell);
+        return $cell;
     }
 
     public function render()
     {
-        $this->data['fields'] = $this->fields;
+        $this->data['cells'] = $this->cells;
 
         $form = new FormBuilder();
 
@@ -102,7 +91,7 @@ class DataForm extends WidgetAbstract
             $form->setMethod('post');
         }
 
-        $form->setFields($this->fields);
+        $form->setCells($this->cells);
         $output_form = $form->build();
 
         $this->data['df'] = $output_form;
@@ -112,18 +101,28 @@ class DataForm extends WidgetAbstract
 
     public function operate()
     {
-        foreach($this->fields as $field) {
-            $field_id = $field->field_id;
-            if(isset($field->callback) && is_callable($field->callback)){
-                $field_value = ($field->transformation)($this->model, Request::input($field_id));
+        foreach($this->cells as $cell) {
+            $cell_id = $cell->field_id;
+            if(isset($cell->callback) && is_callable($cell->callback)){
+                $cell_value = ($cell->transformation)($this->model, Request::input($cell_id));
             } else {
-                if ($field->type == Field::TYPE_DATE) {
-                    $field_value = Carbon::createFromFormat($field->format, Request::input($field_id));
+
+                $type = $cell->type;
+                if(class_exists($type)){
+                    /** @var FieldInterface $field */
+                    $field = new $type();
+                    $field->setCell($cell);
+                    $cell_value = $field->operate();
+                } else if ($cell->type == Cell::TYPE_DATE) {
+                    $cell_value = Carbon::createFromFormat($cell->format, Request::input($cell_id));
                 } else {
-                    $field_value = Request::input($field_id);
+                    $cell_value = Request::input($cell_id);
                 }
             }
-            $this->model->$field_id = $field_value;
+
+            if(\Schema::hasColumn($this->model->getTable(), $cell_id)){
+                $this->model->$cell_id = $cell_value;
+            }
         }
         $this->model->save();
 

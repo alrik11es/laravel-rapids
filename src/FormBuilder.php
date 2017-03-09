@@ -1,11 +1,18 @@
 <?php
 namespace Laravel\Rapids;
 
+use Laravel\Rapids\Fields\CheckBoxGroup;
+use Laravel\Rapids\Fields\FieldInterface;
+
 class FormBuilder
 {
-    private $fields;
+    private $cells;
     private $action_url;
     private $method;
+
+    private $forms = [
+        Cell::TYPE_CHECKBOXGROUP
+    ];
 
     /**
      * @param mixed $method
@@ -20,9 +27,9 @@ class FormBuilder
         $this->action_url = \Request::url();
     }
 
-    public function setFields($fields)
+    public function setCells($cells)
     {
-        $this->fields = $fields;
+        $this->cells = $cells;
     }
 
     public function setActionUrl($action_url)
@@ -48,16 +55,30 @@ class FormBuilder
         $output_form->open = $form->open($options);
 
         $output_form->message = null;
-        foreach ($this->fields as $field) {
+        foreach ($this->cells as $cell) {
 
-            $field_options = ['class' => 'form-control', 'placeholder' => $field->name];
-            $field_options = array_merge($field_options, $field->options);
+            $field_options = ['class' => 'form-control', 'placeholder' => $cell->name];
+            if(isset($cell->options)) {
+                $field_options = array_merge($field_options, $cell->options);
+            }
 
-            $type = $field->type;
-            $field->output = $form->$type($field->field_id, $field->value, $field_options);
+            if(!isset($cell->value)){
+                $cell->value = '';
+            }
 
-            $output_form->fields[] = $field;
+            $type = $cell->type;
 
+            if(class_exists($type)){
+                /** @var FieldInterface $field */
+                $field = new $type();
+                $field->setCell($cell);
+                $field->info = $field;
+                $cell->output = $field->render();
+            } else {
+                $cell->output = $form->$type($cell->field_id, $cell->value, $field_options);
+            }
+
+            $output_form->fields[] = $cell;
         }
         $output_form->submit = $form->submit(null, ['class'=>'btn btn-info']);
         $output_form->reset = $form->reset(null, ['class'=>'btn btn-default']);
