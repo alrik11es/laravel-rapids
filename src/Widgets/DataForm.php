@@ -126,6 +126,17 @@ class DataForm extends WidgetAbstract
         }
         $this->model->save();
 
+        //After save
+        foreach($this->cells as $cell) {
+            $type = $cell->type;
+            if(class_exists($type)) {
+                /** @var FieldInterface $field */
+                $field = new $type();
+                $field->setCell($cell);
+                $field->operateAfterSave();
+            }
+        }
+
         return redirect($this->route);
     }
 

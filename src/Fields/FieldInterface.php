@@ -8,4 +8,5 @@ interface FieldInterface
     public function setCell(Cell $cell);
     public function render();
     public function operate();
+    public function operateAfterSave();
 }
