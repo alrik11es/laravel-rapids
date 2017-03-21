@@ -1,10 +1,9 @@
-{!! $filter !!}
-
 @if($link)
     {!! $link !!}
 @endif
+{!! $filter !!}
 <div class="clearfix"></div>
-<div class="table-responsive">
+<p class="table-responsive">
     <table class="table">
         <tr>
             @foreach($fields as $field)
@@ -42,24 +41,28 @@
 
 
                 @if($actions)
-                    <td>
+                    <td style="width: 23%">
+                        <form action="{{ $url.'/'.$row['id'] }}" method="post" class="form-horizontal">
+                            <input name="_method" type="hidden" value="DELETE">
+                            {{ csrf_field() }}
                         @if (in_array("show", $actions))
-                            <a class="" title="@lang('rapids::rapids.show')" href="{!! $url !!}/{!! $row['id'] !!}">
+                            <a class="btn btn-primary" title="@lang('rapids::rapids.show')" href="{!! $url !!}/{!! $row['id'] !!}">
                                 <span class="glyphicon glyphicon-eye-open"> </span>
                             </a>
                         @endif
                         @if (in_array("modify", $actions))
-                            <a class="" title="@lang('rapids::rapids.modify')" href="{!! $url !!}/{!! $row['id'] !!}/edit">
+                            <a class="btn btn-default" title="@lang('rapids::rapids.modify')" href="{!! $url !!}/{!! $row['id'] !!}/edit">
                                 <span class="glyphicon glyphicon-edit"> </span>
                             </a>
                         @endif
                         @if (in_array("delete", $actions))
-                            {{ resolve('form')->open(['url' => $url.'/'.$row['id'], 'method' => 'delete']) }}
-                            <button type="submit" class="text-danger" title="@lang('rapids::rapids.delete')">
+
+
+                            <button type="submit" class="btn btn-danger" title="@lang('rapids::rapids.delete')">
                                 <span class="glyphicon glyphicon-trash"> </span>
                             </button>
-                            {{ resolve('form')->close() }}
                         @endif
+                        </form>
                     </td>
                 @endif
             </tr>
@@ -71,7 +74,7 @@
             </tr>
         @endforelse
     </table>
-</div>
+</p>
 
 <div class="text-center">
     {!! $paginator->links() !!}

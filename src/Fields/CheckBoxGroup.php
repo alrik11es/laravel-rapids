@@ -42,7 +42,11 @@ class CheckBoxGroup implements FieldInterface
         if ($this->cell->model->exists){
             $this->cell->model->$relation()->detach();
             foreach ($result as $item) {
-                $this->cell->model->$relation()->attach($item, ($this->cell->pivot)($this->cell));
+                $name = [];
+                if(!is_null($this->cell->pivot)){
+                    $name = ($this->cell->pivot)($this->cell);
+                }
+                $this->cell->model->$relation()->attach($item, $name);
             }
         }
     }
