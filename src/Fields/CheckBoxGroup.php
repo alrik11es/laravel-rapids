@@ -36,12 +36,32 @@ class CheckBoxGroup implements FieldInterface
     {
         $relation = $this->cell->field_id;
         $result = \Request::input($relation);
+        if (!is_array($result)) {
+            $result = collect($result);
+        }
+        if ($this->cell->model->exists){
+            $this->cell->model->$relation()->detach();
+            foreach ($result as $item) {
+                $name = [];
+                if(!is_null($this->cell->pivot)){
+                    $name = ($this->cell->pivot)($this->cell);
+                }
+                $this->cell->model->$relation()->attach($item, $name);
+            }
+        }
+    }
+
+    public function operateAfterSave()
+    {
+        $relation = $this->cell->field_id;
+        $result = \Request::input($relation);
         if(!is_array($result)){
             $result = collect($result);
         }
-        $this->cell->model->$relation()->detach();
-        foreach($result as $item){
-            $this->cell->model->$relation()->attach($item, ($this->cell->pivot)($this->cell));
+        if (!$this->cell->model->exists) {
+            foreach ($result as $item) {
+                $this->cell->model->$relation()->attach($item, ($this->cell->pivot)($this->cell));
+            }
         }
     }
 
