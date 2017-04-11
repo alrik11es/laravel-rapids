@@ -43,7 +43,7 @@ class FormBuilder
     public function build($inline = false): \stdClass
     {
         /** @var \Collective\Html\FormBuilder $form */
-        $form = resolve('form');
+        $form = \App::make('form');
         $output_form = new \stdClass();
         $output_form->fields = array();
 
