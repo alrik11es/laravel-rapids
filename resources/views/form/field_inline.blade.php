@@ -17,9 +17,9 @@
 
             {!! $field->output !!}
 
-            @if(count($field->messages ?? []))
-                <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-            @endif
+            @if(is_array($field->messages) && count($field->messages ?? []))
+               <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+           @endif
 
         </span>
     </div>
